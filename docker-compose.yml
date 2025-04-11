@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+  app:
+    image: php:8.2-fpm
+    container_name: netshowme_app
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+
+  webserver:
+    image: nginx:latest
+    container_name: netshowme_webserver
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - app
+
+  db:
+    image: mysql:8.0
+    container_name: netshowme_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: netshowme_backend
+      MYSQL_USER: renan
+      MYSQL_PASSWORD: sua_senha
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
