@@ -2,15 +2,29 @@ version: '3.3'
 
 services:
   app:
-    image: php:8.2-fpm
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: netshowme_app
-    working_dir: /var/www
+    working_dir: "/var/www"
     volumes:
-      - ./:/var/www
+      - .:/var/www
     ports:
       - 8000:8000
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: netshowme_backend
+      DB_USERNAME: renan
+      DB_PASSWORD: sua_senha
     depends_on:
       - db
+    command: >
+      sh -c "while ! mysqladmin ping -h db --silent; do sleep 1; done &&
+            composer install --no-scripts &&
+            php artisan migrate &&
+            php-fpm"
 
   webserver:
     image: nginx:latest
@@ -18,7 +32,7 @@ services:
     ports:
       - 8080:80
     volumes:
-      - ./:/var/www
+      - .:/var/www
       - ./docker/nginx:/etc/nginx/conf.d
     depends_on:
       - app

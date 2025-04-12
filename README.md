@@ -32,7 +32,25 @@ Logo em seguida, dentro da pasta raiz netshowme_backend, rode os comandos abaixo
   docker-compose up --build
 ```
 
-Em outra aba do terminal, execute o comando abaixo para rodar o servidor dentro do seu contêiner:
+Em outra aba do terminal, execute o comando abaixo para entrar no seu contêiner:
 ```bash
-  docker exec -it netshowme_app bash
+  docker exec -it --user root netshowme_app bash
 ```
+
+Logo em seguida, na mesma aba, rode o comando abaixo para subir o servidor:
+```bash
+  php artisan serve --host=0.0.0.0 --port=8000
+```
+
+## Popule o banco de dados
+
+Feitas as devidas instalações e configurações, agora é a hora de popular o banco de dados. Para criar todas as tabelas, rode o comando:
+```bash
+  php artisan migrate:fresh
+``` 
+
+Para popular a tabela de videos, rode o seguinte comando:
+```bash
+  php artisan db:seed --class=VideoSeeder
+``` 
+
