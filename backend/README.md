@@ -1,6 +1,6 @@
 ## Teste técnico Netshow.me
 
-Bem vindo ao back-end da área de membros com vídeos da Netshow.me!
+Bem vindo a área de membros com vídeos da Netshow.me!
 
 ## Sobre o projeto
 
