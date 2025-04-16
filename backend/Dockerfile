@@ -5,14 +5,14 @@ FROM php:8.2-fpm
 ARG UID=1000
 ARG GID=1000
 
-# Verificar e criar o grupo e usuário, se necessário
+# Criar grupo e usuário
 RUN groupadd -f -g ${GID} appgroup && \
     id -u appuser >/dev/null 2>&1 || useradd -m -u ${UID} -g appgroup appuser
 
 # Trocar para o usuário root temporariamente
 USER root
 
-# Atualizar os repositórios e instalar dependências essenciais
+# Instalar dependências essenciais
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libonig-dev \
@@ -28,27 +28,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Configurar automaticamente o php.ini
+# Configurar php.ini
 RUN cp /usr/local/etc/php/php.ini-production /usr/local/etc/php/php.ini
 
-# Instalar Redis apenas se necessário
-RUN if ! php -m | grep -q redis; then pecl install redis && docker-php-ext-enable redis; fi
+# Instalar Redis (opcional)
+RUN pecl install redis && docker-php-ext-enable redis || true
 
-# Definir o limite de memória para o Composer
+# Configurar Composer
 ENV COMPOSER_MEMORY_LIMIT=-1
-
-# Instalar o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Definir o diretório de trabalho
 WORKDIR /var/www
 
-# Copiar arquivos do projeto para o contêiner
+# Copiar arquivos do projeto
 COPY . /var/www
 
-# Ajustar permissões para arquivos no contêiner
-RUN chmod -R 775 /var/www && \
+# Ajustar permissões para Laravel
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache && \
     chown -R appuser:appgroup /var/www
 
-# Voltar para o usuário appuser
+# Trocar para o usuário appuser
 USER appuser
+
+# Expor porta do Laravel
+EXPOSE 8000
+
+# Comando padrão ao iniciar o contêiner
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
