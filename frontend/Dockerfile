@@ -1,20 +1,20 @@
-# Use a imagem oficial do Node.js
+# Usar a imagem oficial do Node.js
 FROM node:18
 
-# Configure o diretório de trabalho dentro do contêiner
+# Configurar o diretório de trabalho dentro do contêiner
 WORKDIR /usr/src/app
 
-# Copie o arquivo package.json e package-lock.json (se existir)
-COPY package*.json ./
+# Copiar os arquivos principais para instalar dependências
+COPY package.json package-lock.json ./
 
-# Instale as dependências do projeto
-RUN npm install
+# Instalar as dependências do projeto, incluindo react-router-dom
+RUN npm install && npm install react-router-dom
 
-# Copie o restante dos arquivos do projeto para o contêiner
+# Copiar os arquivos restantes do projeto para o contêiner
 COPY . .
 
-# Exponha a porta padrão do React (3000)
+# Expor a porta padrão do servidor de desenvolvimento React
 EXPOSE 3000
 
-# Comando para rodar o servidor de desenvolvimento do React
+# Rodar o servidor de desenvolvimento React
 CMD ["npm", "start"]
